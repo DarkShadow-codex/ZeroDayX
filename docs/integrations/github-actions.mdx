@@ -1,0 +1,66 @@
+---
+title: "GitHub Actions"
+description: "Run ZeroDay security scans on every pull request"
+---
+
+Integrate ZeroDay into your GitHub workflow to catch vulnerabilities before they reach production.
+
+## Basic Workflow
+
+```yaml .github/workflows/security.yml
+name: Security Scan
+
+on:
+  pull_request:
+
+jobs:
+  zeroday-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install ZeroDay
+        run: curl -sSL https://zeroday.ai/install | bash
+
+      - name: Run Security Scan
+        env:
+          ZERODAY_LLM: ${{ secrets.ZERODAY_LLM }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: zeroday -n -t ./ --scan-mode quick
+```
+
+## Required Secrets
+
+Add these secrets to your repository:
+
+| Secret | Description |
+|--------|-------------|
+| `ZERODAY_LLM` | Model name (e.g., `openrouter/z-ai/glm-5.3`) |
+| `LLM_API_KEY` | API key for your LLM provider |
+
+## Exit Codes
+
+The workflow fails when vulnerabilities are found:
+
+| Code | Result |
+|------|--------|
+| 0 | Pass — No vulnerabilities |
+| 2 | Fail — Vulnerabilities found |
+
+## Scan Modes for CI
+
+| Mode | Duration | Use Case |
+|------|----------|----------|
+| `quick` | Minutes | Every PR |
+| `standard` | ~30 min | Nightly builds |
+| `deep` | 1-4 hours | Release candidates |
+
+<Tip>
+Use `quick` mode for PRs to keep feedback fast. Schedule `deep` scans nightly.
+</Tip>
+
+<Note>
+For pull_request workflows, ZeroDay automatically uses changed-files diff-scope in CI/headless runs. If diff resolution fails, ensure full history is fetched (`fetch-depth: 0`) or set `--diff-base`.
+</Note>

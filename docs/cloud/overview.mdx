@@ -1,0 +1,59 @@
+---
+title: "Introduction"
+description: "Managed security testing without local setup"
+---
+
+Skip the setup. Run ZeroDay in the cloud at [app.zeroday.ai](https://app.zeroday.ai).
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="No Setup Required" icon="cloud">
+    No Docker, API keys, or local installation needed.
+  </Card>
+  <Card title="Full Reports" icon="file-lines">
+    Detailed findings with remediation guidance.
+  </Card>
+  <Card title="Team Dashboards" icon="users">
+    Track vulnerabilities and fixes over time.
+  </Card>
+  <Card title="GitHub Integration" icon="github">
+    Automatic scans on pull requests.
+  </Card>
+</CardGroup>
+
+## What You Get
+
+- **Penetration test reports** — Validated findings with PoCs
+- **Shareable dashboards** — Collaborate with your team
+- **CI/CD integration** — Block risky changes automatically
+- **Continuous monitoring** — Catch new vulnerabilities quickly
+
+## Getting Started
+
+1. Sign up at [app.zeroday.ai](https://app.zeroday.ai)
+2. Connect your repository or enter a target URL
+3. Launch your first scan
+
+## Scan Local Source
+
+Send a local working tree to the managed white-box scanner without connecting a source-control provider:
+
+```bash
+# Review the exact file manifest and capture source.archive_sha256. Nothing is uploaded.
+zeroday cloud scans start --source . --dry-run --show-files --json
+SOURCE_SHA256="<reviewed source.archive_sha256>"
+
+# Repeat the same source-selection flags and approve that exact snapshot.
+zeroday cloud scans start --source . --approve-sha256 "$SOURCE_SHA256" --wait
+```
+
+In a Git repository, ZeroDay includes tracked files and untracked files that are not ignored. Hidden files, `.git`, symlinks, dependencies and build output, secret-like filenames, and nested archives are excluded by default. Use `.zerodayignore` or repeat `--exclude GLOB` for project-specific exclusions. `--include-hidden`, `--include-sensitive`, and `--include-archives` are explicit opt-ins.
+
+The CLI limits individual files, total expanded bytes, archive bytes, and file count. For an agent or CI handoff, repeat the same `--source`, `--exclude`, and `--include-*` flags with `--approve-sha256`; ZeroDay refuses the upload if the rebuilt archive differs from the reviewed digest. `--yes` is a one-invocation approval for the snapshot built at that moment, not a digest-bound two-step approval.
+
+The temporary local archive is always removed. After a definitive launch rejection, ZeroDay also deletes the staged remote upload. If a network error, server error, or interruption makes the launch outcome ambiguous, it retains the upload and reports its ID; check `zeroday cloud scans list` before retrying, then delete an unlinked upload with `zeroday cloud uploads delete UPLOAD_ID`.
+
+<Card title="Try ZeroDay Cloud" icon="rocket" href="https://app.zeroday.ai">
+  Run your first pentest in minutes.
+</Card>

@@ -1,0 +1,90 @@
+---
+title: "CI/CD Integration"
+description: "Run ZeroDay in any CI/CD pipeline"
+---
+
+ZeroDay runs in headless mode for automated pipelines.
+
+## Headless Mode
+
+Use the `-n` or `--non-interactive` flag:
+
+```bash
+zeroday -n --target ./app --scan-mode quick
+```
+
+For pull-request style CI runs, ZeroDay automatically scopes quick scans to changed files. You can force this behavior and set a base ref explicitly:
+
+```bash
+zeroday -n --target ./app --scan-mode quick --scope-mode diff --diff-base origin/main
+```
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | No vulnerabilities found |
+| 1 | Execution error |
+| 2 | Vulnerabilities found |
+
+## GitLab CI
+
+```yaml .gitlab-ci.yml
+security-scan:
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    ZERODAY_LLM: $ZERODAY_LLM
+    LLM_API_KEY: $LLM_API_KEY
+  script:
+    - curl -sSL https://zeroday.ai/install | bash
+    - zeroday -n -t ./ --scan-mode quick
+```
+
+## Jenkins
+
+```groovy Jenkinsfile
+pipeline {
+    agent any
+    environment {
+        ZERODAY_LLM = credentials('zeroday-llm')
+        LLM_API_KEY = credentials('llm-api-key')
+    }
+    stages {
+        stage('Security Scan') {
+            steps {
+                sh 'curl -sSL https://zeroday.ai/install | bash'
+                sh 'zeroday -n -t ./ --scan-mode quick'
+            }
+        }
+    }
+}
+```
+
+## CircleCI
+
+```yaml .circleci/config.yml
+version: 2.1
+jobs:
+  security-scan:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install ZeroDay
+          command: curl -sSL https://zeroday.ai/install | bash
+      - run:
+          name: Run Scan
+          command: zeroday -n -t ./ --scan-mode quick
+```
+
+<Note>
+All CI platforms require Docker access. Ensure your runner has Docker available.
+</Note>
+
+<Tip>
+If diff-scope fails in CI, fetch full git history (for example, `fetch-depth: 0` in GitHub Actions) so merge-base and branch comparison can be resolved.
+</Tip>
