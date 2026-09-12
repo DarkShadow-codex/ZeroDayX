@@ -18,6 +18,7 @@ import re
 import secrets
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from markdown_it import MarkdownIt
@@ -48,10 +49,10 @@ from zeroday.interface.viewer.transcript import (
 
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from markdown_it.token import Token
 
+
+_LOGO_FILE = Path(__file__).resolve().parent / "static" / "logo.png"
 
 # Palette lifted from the cloud report theme (styles/base.ts, docx/theme.ts).
 _INK = colors.HexColor("#000000")
@@ -119,7 +120,7 @@ class _NumberedCanvas(pdfcanvas.Canvas):  # type: ignore[misc]  # reportlab base
 
 
 class _LogoMark(Flowable):  # type: ignore[misc]  # reportlab base is untyped
-    """The rounded-square ZeroDay mark drawn inline (no raster asset to ship)."""
+    """The ZeroDayX logo mark drawn using the logo asset or inline fallback."""
 
     def __init__(self, size: float = 30) -> None:
         super().__init__()
@@ -130,11 +131,14 @@ class _LogoMark(Flowable):  # type: ignore[misc]  # reportlab base is untyped
     def draw(self) -> None:
         c = self.canv
         s = self.size
-        c.setFillColor(_INK)
-        c.roundRect(0, 0, s, s, s * 0.28, fill=1, stroke=0)
-        c.setFillColor(colors.white)
-        c.setFont(_SANS_BOLD, s * 0.56)
-        c.drawCentredString(s / 2, s * 0.27, "S")
+        if _LOGO_FILE.is_file():
+            c.drawImage(str(_LOGO_FILE), 0, 0, width=s, height=s, mask="auto")
+        else:
+            c.setFillColor(_INK)
+            c.roundRect(0, 0, s, s, s * 0.28, fill=1, stroke=0)
+            c.setFillColor(colors.white)
+            c.setFont(_SANS_BOLD, s * 0.45)
+            c.drawCentredString(s / 2, s * 0.30, "ZX")
 
 
 def _styles() -> dict[str, ParagraphStyle]:

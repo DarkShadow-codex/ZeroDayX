@@ -297,8 +297,8 @@ export default function App() {
               className="flex items-center gap-1.5 opacity-90 transition-opacity hover:opacity-100 lg:hidden"
               title="Open ZeroDay Cloud"
             >
-              <img src="./logo.png" alt="ZeroDay" className="w-10 h-8 object-cover" />
-              <div className="text-base text-white font-medium tracking-tight">ZeroDay</div>
+              <img src="./logo.png" alt="ZeroDayX" className="w-10 h-8 object-cover rounded" />
+              <div className="text-base text-white font-medium tracking-tight">ZeroDayX</div>
             </a>
             {run && <LiveIndicator finished={run.finished} />}
             <div className="ml-auto flex items-center gap-3">

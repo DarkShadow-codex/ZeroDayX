@@ -199,14 +199,13 @@ export default function Sidebar({
                 className="flex flex-1 flex-row items-center gap-2 rounded-md py-2 pl-2.5 pr-1 min-w-0 transition-colors hover:bg-[rgba(255,255,255,0.06)]"
                 title="Open ZeroDay Cloud"
               >
-                <span
-                  className="flex flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500"
-                  style={{ width: 20, height: 20 }}
-                >
-                  <span className="text-[10px] font-semibold text-white">S</span>
-                </span>
+                <img
+                  src="./logo.png"
+                  alt="ZeroDayX"
+                  className="w-5 h-5 rounded object-cover flex-shrink-0"
+                />
                 <span className="flex flex-1 flex-row items-center gap-2 min-w-0">
-                  <span className="truncate min-w-0 text-[14px] font-medium text-[#ededed]">ZeroDay</span>
+                  <span className="truncate min-w-0 text-[14px] font-medium text-[#ededed]">ZeroDayX</span>
                   <span className="flex h-5 flex-shrink-0 items-center rounded px-2 text-[11px] font-medium text-[#888] bg-[rgba(255,255,255,0.08)]">
                     Local
                   </span>
