@@ -1,7 +1,6 @@
 ---
 name: fix-security-vulnerabilities-with-zeroday
 description: Fix security vulnerabilities found by a ZeroDay pentest (open-source CLI or app.zeroday.ai cloud) — triage by severity, patch the root cause rather than the symptom, and re-run ZeroDay to prove each fix actually closes the exploit. Handles injection, XSS, SSRF, broken access control, IDOR, and other validated findings. Use after a ZeroDay scan reports findings, or when the user asks to remediate, patch, or fix security issues from a zeroday_runs report, vulnerabilities.json, findings.sarif, or a cloud scan.
-license: Apache-2.0
 metadata:
   author: ZeroDay
   homepage: https://docs.zeroday.ai

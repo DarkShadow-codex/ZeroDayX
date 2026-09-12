@@ -3,7 +3,6 @@ name = "zeroday-agent"
 version = "1.6.2"
 description = "Open-source AI Hackers for your apps"
 readme = "README.md"
-license = "Apache-2.0"
 requires-python = ">=3.12"
 authors = [
   { name = "ZeroDay", email = "hi@zeroday.com" },
@@ -23,7 +22,6 @@ classifiers = [
   "Intended Audience :: Information Technology",
   "Intended Audience :: System Administrators",
   "Topic :: Security",
-  "License :: OSI Approved :: Apache Software License",
   "Environment :: Console",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",

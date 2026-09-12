@@ -8,7 +8,6 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-informational)]()
 [![Docker](https://img.shields.io/badge/Sandbox-Kali%20Linux-black?logo=docker&logoColor=white)](https://hub.docker.com)
 [![SARIF](https://img.shields.io/badge/Output-SARIF%202.1.0%20%7C%20PDF%20%7C%20JSON-success)]()
-[![License](https://img.shields.io/badge/License-Apache--2.0-green)]()
 
 > **ZeroDayX is an autonomous AI penetration-testing system that gives an LLM the tools, environment, knowledge, and coordination mechanisms necessary to operate like a security-testing team.**
 
@@ -486,10 +485,4 @@ Launch the local web viewer (native Windows/Linux/macOS, no Docker required):
 uv run zeroday view demo-scan --port 8765
 ```
 Open the generated link in your browser to inspect vulnerabilities, request/response proof-of-concepts, CVSS breakdowns, and the real-time agent coordination topology.
-
----
-
-## License
-
-This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
