@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import stat
+import sys
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -88,8 +89,9 @@ def test_is_verified_accepts_epoch_expiry() -> None:
 
 def test_write_auth_is_0600() -> None:
     auth.write_auth(email="a@b.com", token="t", verified_at="")  # nosec B106
-    mode = stat.S_IMODE(auth.AUTH_PATH.stat().st_mode)
-    assert mode == 0o600
+    if sys.platform != "win32":
+        mode = stat.S_IMODE(auth.AUTH_PATH.stat().st_mode)
+        assert mode == 0o600
 
 
 def test_read_auth_rejects_incomplete_record() -> None:

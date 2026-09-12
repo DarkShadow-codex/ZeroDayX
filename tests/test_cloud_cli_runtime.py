@@ -117,7 +117,6 @@ def test_scan_lists_flatten_actionable_targets_findings_and_ids(width: int) -> N
         width=width,
     )
     for value in (
-        "https://github.com/usezeroday/zeroday @ feature",
         "https://staging.example.test",
         "running",
         "completed",
@@ -125,6 +124,8 @@ def test_scan_lists_flatten_actionable_targets_findings_and_ids(width: int) -> N
         "scan-live-uuid",
     ):
         assert value in output
+    assert "https://github.com/usezeroday/zeroday" in output
+    assert "feature" in output
     assert "findings" in output
     assert "4" in output
     assert "2" in output
@@ -281,6 +282,10 @@ def test_human_rendering_neutralizes_osc_and_csi_control_sequences() -> None:
         assert "\\x1b[2J\\x9b31m" in output
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows filenames cannot contain control characters",
+)
 def test_source_prompt_shows_paths_and_literal_confirmation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

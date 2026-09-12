@@ -47,7 +47,7 @@ self-scoped information leak. Low: verbose errors.
 
 
 def _git(repo: Path, *args: str) -> None:
-    subprocess.run(["/usr/bin/env", "git", *args], cwd=repo, check=True)  # noqa: S603
+    subprocess.run(["git", *args], cwd=repo, check=True)  # noqa: S603, S607
 
 
 def _make_repo(tmp_path: Path, name: str = "repo") -> Path:

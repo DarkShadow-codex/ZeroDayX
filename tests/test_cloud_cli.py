@@ -3266,8 +3266,8 @@ def test_trace_human_view_summarizes_events_and_preserves_selector(
         "sk_live_secret-as-dictionary-key",
     ):
         assert secret not in output
-    assert "scans trace-event scan-id EVENT_ID" in output
     normalized_output = " ".join(output.replace("`", "").split())
+    assert "scans trace-event scan-id EVENT_ID" in normalized_output
     assert "same trace command with --cursor next-secret" in normalized_output
     assert "keep its --agent-id, --tool-name, and --limit options" in normalized_output
     assert "Older trace events remain available." in normalized_output

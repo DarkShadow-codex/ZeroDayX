@@ -165,7 +165,10 @@ def test_do_search_reports_empty_exa_results_as_unexpected(
         ({"PERPLEXITY_API_KEY": "pk"}, []),
         ({"ZERODAY_WEB_SEARCH_PROVIDER": "exa", "PERPLEXITY_API_KEY": "pk"}, ["EXA_API_KEY"]),
         ({"ZERODAY_WEB_SEARCH_PROVIDER": "exa", "EXA_API_KEY": "ek"}, []),
-        ({"ZERODAY_WEB_SEARCH_PROVIDER": "perplexity", "EXA_API_KEY": "ek"}, ["PERPLEXITY_API_KEY"]),
+        (
+            {"ZERODAY_WEB_SEARCH_PROVIDER": "perplexity", "EXA_API_KEY": "ek"},
+            ["PERPLEXITY_API_KEY"],
+        ),
         ({"ZERODAY_WEB_SEARCH_PROVIDER": "perplexity", "PERPLEXITY_API_KEY": "pk"}, []),
     ],
 )

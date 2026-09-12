@@ -532,7 +532,9 @@ def test_auth_mutations_require_session(tmp_path: Path, monkeypatch: pytest.Monk
     run_dir = _make_run(tmp_path, "authmut", status="running", end_time=None)
     _bundle(tmp_path, monkeypatch)
     forgotten = {"value": False}
-    monkeypatch.setattr("zeroday.interface.viewer.auth.forget", lambda: forgotten.update(value=True))
+    monkeypatch.setattr(
+        "zeroday.interface.viewer.auth.forget", lambda: forgotten.update(value=True)
+    )
 
     httpd, url, _ = serve(run_dir, open_browser=False)
     try:

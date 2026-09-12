@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import sys
 from typing import Any
+
+import pytest
 
 from zeroday.interface.completions import completion_candidates, run_completions
 
@@ -127,6 +130,10 @@ def test_filesystem_completion_for_source_output_and_data(tmp_path: Any, monkeyp
     assert data == ["@request.json"]
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows filesystems reject control characters in filenames",
+)
 def test_filesystem_completion_omits_terminal_control_names(
     tmp_path: Any, monkeypatch: Any, capsys: Any
 ) -> None:

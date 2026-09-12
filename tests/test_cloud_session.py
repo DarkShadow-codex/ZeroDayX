@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -163,4 +164,5 @@ def test_cli_device_identity_is_stable_and_privacy_safe(
     second = platform_identity.read_or_create_identity(device_name="  Build   laptop  ")
     assert second["client_instance_id"] == first["client_instance_id"]
     assert second["device_name"] == "Build laptop"
-    assert path.stat().st_mode & 0o777 == 0o600
+    if sys.platform != "win32":
+        assert path.stat().st_mode & 0o777 == 0o600
