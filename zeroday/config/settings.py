@@ -167,6 +167,21 @@ class ViewerSettings(BaseSettings):
     app_url: str = Field(default="https://app.zeroday.ai", alias="ZERODAY_APP_URL")
 
 
+class PolicySettings(BaseSettings):
+    model_config = _BASE_CONFIG
+
+    allowed_domains: list[str] = Field(default_factory=list, alias="ZERODAY_ALLOWED_DOMAINS")
+    denied_domains: list[str] = Field(default_factory=list, alias="ZERODAY_DENIED_DOMAINS")
+    max_requests_per_minute: int = Field(default=300, alias="ZERODAY_MAX_REQUESTS_PER_MINUTE")
+
+
+class SafetySettings(BaseSettings):
+    model_config = _BASE_CONFIG
+
+    safety_mode: str = Field(default="controlled", alias="ZERODAY_SAFETY_MODE")
+    auto_approve_high_risk: bool = Field(default=False, alias="ZERODAY_AUTO_APPROVE_HIGH_RISK")
+
+
 class Settings(BaseSettings):
     model_config = _BASE_CONFIG
 
@@ -177,3 +192,6 @@ class Settings(BaseSettings):
     telemetry: TelemetrySettings = Field(default_factory=TelemetrySettings)
     integrations: IntegrationSettings = Field(default_factory=IntegrationSettings)
     viewer: ViewerSettings = Field(default_factory=ViewerSettings)
+    policy: PolicySettings = Field(default_factory=PolicySettings)
+    safety: SafetySettings = Field(default_factory=SafetySettings)
+

@@ -486,3 +486,113 @@ uv run zeroday view demo-scan --port 8765
 ```
 Open the generated link in your browser to inspect vulnerabilities, request/response proof-of-concepts, CVSS breakdowns, and the real-time agent coordination topology.
 
+---
+
+## ZeroDay Upgrade Architecture v2.0
+
+### Vision & Core Philosophy
+
+ZeroDay v2.0 is an autonomous AI red-team and continuous security validation platform:
+- **LLM**: Reasoning
+- **Security Tools**: Sandboxed Execution
+- **Skills**: Domain Security Knowledge
+- **Agent Graph**: Specialized Multi-Agent Security Team
+- **Sandbox**: Controlled Execution Environment
+- **Policy Engine**: Deterministic Safety Boundary ("Fail Closed")
+- **Evidence Vault**: Cryptographic Proof & Integrity
+- **Risk Engine**: Prioritization (`CVSS × Criticality × Exposure × Exploitability × Impact × Confidence`)
+- **Attack Graph**: Exploit-Path & Reachability Intelligence
+- **Defense Engine**: Purple Team Detection Validation (Sigma, YARA, Suricata)
+- **Remediation Engine**: Root-cause Analysis, Patch Generation, and Security Regression Retesting
+
+### High-Level Architecture Diagram
+
+```text
+                              USER
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │  ZERO DAY CONTROL   │
+                     │       PLANE         │
+                     │ CLI / TUI / Web UI  │
+                     │ Scan / Config       │
+                     └──────────┬──────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │ POLICY & SAFETY     │
+                     │ ENGINE              │
+                     │ Scope / Permissions │
+                     │ Rate Limits / Kill  │
+                     │ Switch / Approvals  │
+                     └──────────┬──────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │ ROOT AGENT          │
+                     │ AI ORCHESTRATOR     │
+                     └──────────┬──────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              ▼                 ▼                 ▼
+         Recon Agents      Web/API Agents    Source Agents
+              │                 │                 │
+              └─────────────────┼─────────────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │ SECURITY TOOLING    │
+                     │ Browser / Terminal  │
+                     │ Python / Proxy      │
+                     │ Recon / SAST / SCA  │
+                     │ Cloud / Container   │
+                     └──────────┬──────────┘
+                                │
+                                ▼
+                     ┌─────────────────────┐
+                     │ ZERO DAY SANDBOX    │
+                     │ Disposable Runtime  │
+                     └──────────┬──────────┘
+                                │
+                                ▼
+                              TARGETS
+                                │
+                                ▼
+                    Observations / Events
+                                │
+             ┌──────────────────┼──────────────────┐
+             ▼                  ▼                  ▼
+       Finding Engine      Attack Graph       Defense Engine
+             │                  │                  │
+             └──────────────────┼──────────────────┘
+                                ▼
+                         Risk Engine
+                                │
+                                ▼
+                     Evidence / Reporting
+                                │
+                   ┌────────────┼────────────┐
+                   ▼            ▼            ▼
+                 CI/CD         SOC       Remediation
+```
+
+### Specialized Multi-Agent Matrix
+ZeroDay v2.0 coordinates 15 specialized agents:
+1. **Root**: Orchestration, threat modeling, and posture review
+2. **Recon**: Attack-surface discovery and port/service mapping
+3. **Web**: OWASP Top 10 web vulnerabilities (SQLi, XSS, SSRF, CSRF)
+4. **API**: REST/GraphQL security, BOLA/IDOR, mass assignment
+5. **Source**: White-box SAST code review and tainted dataflow analysis
+6. **Auth**: Authentication workflows, MFA, password policies, JWT, OAuth
+7. **Authorization**: Access control, horizontal/vertical privilege escalation
+8. **Business Logic**: Workflow state manipulation, step skipping, parameter tampering
+9. **Cloud**: AWS/Azure/GCP IAM, storage, metadata services
+10. **Container**: Dockerfile, container capabilities, host mounts, image security
+11. **Kubernetes**: K8s RBAC, Pods, ServiceAccounts, NetworkPolicies
+12. **Secrets**: Secret, token, and private key discovery in code and configuration
+13. **Supply Chain**: SBOM, vulnerable dependencies (CVE), package confusion
+14. **Validation**: Minimal-impact PoC verification and evidence collection
+15. **Detection**: Purple team detection validation & rule generation (Sigma, YARA, Suricata)
+16. **Remediation**: Root-cause analysis, patch generation, and security regression tests
+
+
