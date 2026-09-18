@@ -1,11 +1,11 @@
 [project]
-name = "zeroday-agent"
+name = "zerodayx"
 version = "1.6.2"
-description = "Open-source AI Hackers for your apps"
+description = "Autonomous AI-powered cybersecurity testing platform"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
-  { name = "ZeroDay", email = "hi@zeroday.com" },
+  { name = "Abhishek Tiwari", email = "abhishektiwari1814@gmail.com" },
 ]
 keywords = [
   "cybersecurity",
@@ -49,6 +49,11 @@ dependencies = [
   "cryptography>=48.0.1,<49",
   "pyyaml>=6.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/DarkShadow-codex/ZeroDayX"
+Repository = "https://github.com/DarkShadow-codex/ZeroDayX"
+Issues = "https://github.com/DarkShadow-codex/ZeroDayX/issues"
 
 [project.optional-dependencies]
 vertex = ["google-auth>=2.0.0"]
