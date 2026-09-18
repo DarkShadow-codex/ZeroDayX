@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.findings.models import Finding
 from zeroday.intelligence.attack_surface.models import Asset, AssetCriticality, ExposureLevel
 from zeroday.risk.asset_risk import AssetRiskScorer
 from zeroday.risk.exploitability import ExploitabilityScorer, ExploitabilityTier
 from zeroday.risk.exposure import ExposureScorer
+
+
+if TYPE_CHECKING:
+    from zeroday.findings.models import Finding
 
 
 logger = logging.getLogger(__name__)
@@ -52,8 +55,12 @@ class ContextAwareRiskEngine:
         business_impact: float = 1.0,  # 0.5 to 1.5
     ) -> RiskScoreResult:
         cvss = finding.cvss
-        crit_factor = AssetRiskScorer.get_multiplier(asset.criticality if asset else AssetCriticality.MEDIUM)
-        exp_factor = ExposureScorer.get_multiplier(asset.exposure if asset else ExposureLevel.INTERNET_FACING)
+        crit_factor = AssetRiskScorer.get_multiplier(
+            asset.criticality if asset else AssetCriticality.MEDIUM
+        )
+        exp_factor = ExposureScorer.get_multiplier(
+            asset.exposure if asset else ExposureLevel.INTERNET_FACING
+        )
 
         has_poc = bool(finding.poc.request_content or finding.poc.script_code)
         exp_tier = ExploitabilityTier.POC_VERIFIED if has_poc else ExploitabilityTier.THEORETICAL

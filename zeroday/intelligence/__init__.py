@@ -48,6 +48,8 @@ from zeroday.intelligence.threat_model import (
 __all__ = [
     "CANONICAL_TECHNIQUES",
     "CWE_DATABASE",
+    "OWASP_API_2023",
+    "OWASP_WEB_2021",
     "Asset",
     "AssetCriticality",
     "AssetGraph",
@@ -61,8 +63,6 @@ __all__ = [
     "MitreCoverageMatrix",
     "MitreTactic",
     "MitreTechnique",
-    "OWASP_API_2023",
-    "OWASP_WEB_2021",
     "OwaspCategory",
     "SecurityControl",
     "SecurityKnowledgeGraph",

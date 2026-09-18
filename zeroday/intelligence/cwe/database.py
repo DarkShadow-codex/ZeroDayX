@@ -9,7 +9,7 @@ from typing import Any
 @dataclass(slots=True)
 class CweDefinition:
     cwe_id: str  # e.g. "CWE-89"
-    name: str  # e.g. "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+    name: str  # e.g. "Improper Neutralization of Special Elements ('SQL Injection')"
     owasp_web_category: str  # e.g. "A03:2021"
     owasp_api_category: str | None
     typical_severity: str  # "CRITICAL", "HIGH", "MEDIUM", "LOW"
@@ -37,7 +37,9 @@ CWE_DATABASE: dict[str, CweDefinition] = {
         owasp_api_category=None,
         typical_severity="MEDIUM",
         typical_cvss=6.1,
-        description="Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting').",
+        description=(
+            "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')."
+        ),
     ),
     "CWE-639": CweDefinition(
         cwe_id="CWE-639",
@@ -46,7 +48,9 @@ CWE_DATABASE: dict[str, CweDefinition] = {
         owasp_api_category="API1:2023",
         typical_severity="HIGH",
         typical_cvss=8.1,
-        description="Authorization Bypass Through User-Controlled Key allowing unauthorized object access.",
+        description=(
+            "Authorization Bypass Through User-Controlled Key allowing unauthorized object access."
+        ),
     ),
     "CWE-22": CweDefinition(
         cwe_id="CWE-22",
@@ -55,7 +59,9 @@ CWE_DATABASE: dict[str, CweDefinition] = {
         owasp_api_category=None,
         typical_severity="HIGH",
         typical_cvss=7.5,
-        description="Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal').",
+        description=(
+            "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')."
+        ),
     ),
     "CWE-78": CweDefinition(
         cwe_id="CWE-78",
@@ -64,7 +70,10 @@ CWE_DATABASE: dict[str, CweDefinition] = {
         owasp_api_category=None,
         typical_severity="CRITICAL",
         typical_cvss=9.8,
-        description="Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection').",
+        description=(
+            "Improper Neutralization of Special Elements used in an OS Command "
+            "('OS Command Injection')."
+        ),
     ),
     "CWE-918": CweDefinition(
         cwe_id="CWE-918",
@@ -91,7 +100,9 @@ CWE_DATABASE: dict[str, CweDefinition] = {
         owasp_api_category="API2:2023",
         typical_severity="HIGH",
         typical_cvss=8.2,
-        description="Improper Authentication allowing unauthorized access to application functions.",
+        description=(
+            "Improper Authentication allowing unauthorized access to application functions."
+        ),
     ),
     "CWE-798": CweDefinition(
         cwe_id="CWE-798",
@@ -118,7 +129,10 @@ CWE_DATABASE: dict[str, CweDefinition] = {
         owasp_api_category="API4:2023",
         typical_severity="HIGH",
         typical_cvss=7.4,
-        description="Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition').",
+        description=(
+            "Concurrent Execution using Shared Resource with Improper "
+            "Synchronization ('Race Condition')."
+        ),
     ),
 }
 

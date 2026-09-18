@@ -6,8 +6,7 @@ Enforces: Hypothesis -> Test -> Observation -> Evidence -> Validation -> Finding
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from zeroday.findings.models import Finding, FindingStatus
 
@@ -38,7 +37,8 @@ class FindingValidator:
         if finding.confidence < self.min_confidence:
             return (
                 False,
-                f"Confidence score {finding.confidence} is below confirmation threshold ({self.min_confidence})",
+                f"Confidence score {finding.confidence} is below confirmation "
+                f"threshold ({self.min_confidence})",
             )
 
         if not finding.endpoint and not finding.asset_id:
@@ -51,7 +51,6 @@ class FindingValidator:
         if valid:
             finding.status = FindingStatus.CONFIRMED
             return True
-        else:
-            finding.status = FindingStatus.OBSERVED
-            logger.warning("Finding %s failed validation: %s", finding.finding_id, reason)
-            return False
+        finding.status = FindingStatus.OBSERVED
+        logger.warning("Finding %s failed validation: %s", finding.finding_id, reason)
+        return False

@@ -9,9 +9,12 @@ from __future__ import annotations
 import enum
 import logging
 import time
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 logger = logging.getLogger(__name__)
@@ -96,8 +99,8 @@ class KillSwitch:
         for cb in self._callbacks:
             try:
                 cb(self._event)
-            except Exception as e:
-                logger.exception("Error executing kill switch callback: %s", e)
+            except Exception:
+                logger.exception("Error executing kill switch callback")
 
         return self._event
 

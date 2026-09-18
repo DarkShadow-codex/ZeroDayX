@@ -117,7 +117,7 @@ class ApprovalManager:
         timeout = timeout_s if timeout_s is not None else self.default_timeout_s
         try:
             await asyncio.wait_for(event.wait(), timeout=timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             req.status = ApprovalStatus.TIMED_OUT
             req.resolved_at = time.time()
             req.resolved_by = "system_timeout"

@@ -70,8 +70,8 @@ class CoordinationBus:
                 res = handler(event)
                 if asyncio.iscoroutine(res):
                     await res
-            except Exception as e:
-                logger.exception("Error in event handler for %s: %s", event_type, e)
+            except Exception:
+                logger.exception("Error in event handler for %s", event_type)
 
         return event
 

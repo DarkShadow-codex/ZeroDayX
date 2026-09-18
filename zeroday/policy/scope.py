@@ -74,8 +74,8 @@ class ScopeEngine:
         ip_specs: list[str],
     ) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
         networks = []
-        for spec in ip_specs:
-            spec = spec.strip()
+        for raw_spec in ip_specs:
+            spec = raw_spec.strip()
             if not spec:
                 continue
             try:
@@ -93,7 +93,10 @@ class ScopeEngine:
         if len(self._request_timestamps) >= self.config.max_requests_per_minute:
             return ScopeDecision(
                 allowed=False,
-                reason=f"Rate limit exceeded: {len(self._request_timestamps)} requests in last 60s (max: {self.config.max_requests_per_minute})",
+                reason=(
+                    f"Rate limit exceeded: {len(self._request_timestamps)} requests "
+                    f"in last 60s (max: {self.config.max_requests_per_minute})"
+                ),
                 target="rate_limit",
             )
         self._request_timestamps.append(now)
@@ -255,14 +258,13 @@ class ScopeEngine:
                 )
 
         # Must match allowed domain
-        if not self.config.allowed_domains:
+        if not self.config.allowed_domains and not self.config.allowed_urls:
             # If no allowed domains defined, fail closed unless allowed_urls defined
-            if not self.config.allowed_urls:
-                return ScopeDecision(
-                    allowed=False,
-                    reason="Fail closed: no allowed domains configured in scope",
-                    target=domain,
-                )
+            return ScopeDecision(
+                allowed=False,
+                reason="Fail closed: no allowed domains configured in scope",
+                target=domain,
+            )
 
         for allowed in self.config.allowed_domains:
             norm_allowed = allowed.lower().strip(".")
@@ -300,7 +302,7 @@ class ScopeEngine:
     def _check_url(self, raw_url: str) -> ScopeDecision:
         try:
             parsed = urlparse(raw_url)
-        except Exception as e:
+        except ValueError as e:
             return ScopeDecision(
                 allowed=False,
                 reason=f"Fail closed: malformed URL ({e})",

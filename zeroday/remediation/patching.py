@@ -5,6 +5,7 @@ from __future__ import annotations
 import difflib
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 
@@ -66,10 +67,10 @@ class PatchGenerator:
             raise PermissionError("Patch must be explicitly approved by human before application")
 
         try:
-            with open(patch.file_path, "w", encoding="utf-8") as f:
-                f.write(patch.patched_code)
+            Path(patch.file_path).write_text(patch.patched_code, encoding="utf-8")
+        except Exception:
+            logger.exception("Failed to write patched file %s", patch.file_path)
+            return False
+        else:
             logger.info("Successfully applied approved patch to %s", patch.file_path)
             return True
-        except Exception as e:
-            logger.exception("Failed to write patched file %s: %s", patch.file_path, e)
-            return False

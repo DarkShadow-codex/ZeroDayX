@@ -97,7 +97,7 @@ class ActionPolicyEngine:
         self,
         command: str,
         *,
-        agent_name: str = "agent",
+        _agent_name: str = "agent",
     ) -> ActionPolicyDecision:
         """Evaluate the risk tier of an arbitrary shell command."""
         cmd_clean = command.strip()
@@ -110,7 +110,10 @@ class ActionPolicyEngine:
                         allowed=False,
                         risk_level=ActionRiskLevel.HIGH,
                         requires_approval=False,
-                        reason=f"Blocked dangerous destructive system command: pattern match {pattern.pattern}",
+                        reason=(
+                            "Blocked dangerous destructive system command: "
+                            f"pattern match {pattern.pattern}"
+                        ),
                         action_type="shell",
                         target=cmd_clean,
                     )
@@ -167,8 +170,8 @@ class ActionPolicyEngine:
         method: str,
         url: str,
         *,
-        body: str | None = None,
-        agent_name: str = "agent",
+        _body: str | None = None,
+        _agent_name: str = "agent",
     ) -> ActionPolicyDecision:
         """Evaluate HTTP request risk tier."""
         m = method.upper().strip()

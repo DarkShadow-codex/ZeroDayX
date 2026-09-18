@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import heapq
 import logging
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any
 
-from zeroday.attack_graph.graph import AttackGraph
-from zeroday.attack_graph.nodes import AttackNode
+
+if TYPE_CHECKING:
+    from zeroday.attack_graph.graph import AttackGraph
 
 
 logger = logging.getLogger(__name__)
@@ -79,7 +80,7 @@ class AttackPathAnalyzer:
                 raw_paths = self.find_all_paths(ep.node_id, ca.node_id)
                 for rp in raw_paths:
                     labels = [
-                        (self.graph.get_node(nid).label if self.graph.get_node(nid) else nid)
+                        node.label if (node := self.graph.get_node(nid)) is not None else nid
                         for nid in rp
                     ]
                     # Calculate cumulative confidence and cost
@@ -142,7 +143,7 @@ class AttackPathAnalyzer:
         path_nodes.reverse()
 
         labels = [
-            (self.graph.get_node(nid).label if self.graph.get_node(nid) else nid)
+            node.label if (node := self.graph.get_node(nid)) is not None else nid
             for nid in path_nodes
         ]
         target_node = self.graph.get_node(target_id)

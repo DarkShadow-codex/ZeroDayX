@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any
 

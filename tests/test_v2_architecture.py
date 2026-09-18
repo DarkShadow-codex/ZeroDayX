@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
-import os
-import tempfile
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from zeroday.agents.matrix import AGENT_MATRIX, get_agent_definition
+from zeroday.agents.matrix import get_agent_definition
 from zeroday.attack_graph import (
     AttackEdgeType,
     AttackGraph,
@@ -17,12 +14,7 @@ from zeroday.attack_graph import (
     AttackPathAnalyzer,
 )
 from zeroday.defense import (
-    ControlValidationResult,
-    DetectionEngine,
-    DetectionGap,
-    DetectionRule,
     PurpleTeamEngine,
-    SecurityControlValidator,
     SigmaRuleGenerator,
     SuricataRuleGenerator,
     YaraRuleGenerator,
@@ -40,9 +32,6 @@ from zeroday.findings import (
     RemediationSpec,
 )
 from zeroday.intelligence import (
-    CWE_DATABASE,
-    OWASP_API_2023,
-    OWASP_WEB_2021,
     Asset,
     AssetCriticality,
     AssetGraph,
@@ -50,16 +39,12 @@ from zeroday.intelligence import (
     CweDatabase,
     ExposureLevel,
     MitreCoverageMatrix,
-    SecurityKnowledgeGraph,
     ThreatModelingEngine,
     lookup_owasp,
 )
 from zeroday.orchestration import (
-    AgentManager,
     CoordinationBus,
-    CoverageManager,
     ScheduledTask,
-    TaskManager,
     TaskScheduler,
 )
 from zeroday.policy import (
@@ -71,8 +56,6 @@ from zeroday.policy import (
     KillCondition,
     KillSwitch,
     PermissionValidator,
-    RateLimitConfig,
-    RateLimiter,
     ScopeConfig,
     ScopeEngine,
 )
@@ -85,24 +68,21 @@ from zeroday.remediation import (
 from zeroday.reporting import (
     ComplianceMapper,
     ExecutiveReportGenerator,
-    JsonReportGenerator,
     TechnicalReportGenerator,
 )
 from zeroday.risk import (
-    AssetRiskScorer,
     ContextAwareRiskEngine,
-    CvssCalculator,
-    ExploitabilityScorer,
-    ExploitabilityTier,
-    ExposureScorer,
     ZeroDaySecurityScore,
 )
 from zeroday.storage import AuditLogRecord, Database, ScanRecord
 from zeroday.tools.registry import (
-    ToolMetadata,
     ToolRegistry,
     redact_sensitive,
 )
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 # ============================================================================
@@ -228,7 +208,7 @@ def test_kill_switch():
     assert not kill_switch.is_triggered
 
     events = []
-    kill_switch.register_callback(lambda e: events.append(e))
+    kill_switch.register_callback(events.append)
 
     evt = kill_switch.trigger(
         KillCondition.SCOPE_VIOLATION,
@@ -460,12 +440,12 @@ def test_attack_graph_path_finding():
     graph = AttackGraph()
 
     # Nodes
-    n_internet = graph.add_node("n0", AttackNodeType.ASSET, "Internet", is_entry_point=True)
-    n_web = graph.add_node("n1", AttackNodeType.SERVICE, "Public Web API")
-    n_auth_vuln = graph.add_node("n2", AttackNodeType.VULNERABILITY, "Auth Bypass")
-    n_user = graph.add_node("n3", AttackNodeType.USER, "User Account")
-    n_idor = graph.add_node("n4", AttackNodeType.VULNERABILITY, "IDOR Vulnerability")
-    n_db = graph.add_node("n5", AttackNodeType.DATA, "Customer Database", is_critical_asset=True)
+    graph.add_node("n0", AttackNodeType.ASSET, "Internet", is_entry_point=True)
+    graph.add_node("n1", AttackNodeType.SERVICE, "Public Web API")
+    graph.add_node("n2", AttackNodeType.VULNERABILITY, "Auth Bypass")
+    graph.add_node("n3", AttackNodeType.USER, "User Account")
+    graph.add_node("n4", AttackNodeType.VULNERABILITY, "IDOR Vulnerability")
+    graph.add_node("n5", AttackNodeType.DATA, "Customer Database", is_critical_asset=True)
 
     # Edges
     graph.add_edge("n0", "n1", AttackEdgeType.CONNECTS, weight=1.0)
@@ -537,7 +517,7 @@ def test_purple_team_and_detection_rules():
 # ============================================================================
 
 
-def test_remediation_and_regression_engine(tmp_path: Path):
+def test_remediation_and_regression_engine():
     finding = Finding(
         finding_id="ZD-F-001",
         title="SQL Injection",
@@ -584,9 +564,9 @@ async def test_orchestration_and_coordination_bus():
     bus = CoordinationBus()
     received_events = []
 
-    bus.subscribe("finding.created", lambda e: received_events.append(e))
+    bus.subscribe("finding.created", received_events.append)
 
-    evt = await bus.publish(
+    await bus.publish(
         "finding.created",
         scan_id="scan-123",
         agent_id="web",

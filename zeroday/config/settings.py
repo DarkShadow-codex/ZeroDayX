@@ -194,4 +194,3 @@ class Settings(BaseSettings):
     viewer: ViewerSettings = Field(default_factory=ViewerSettings)
     policy: PolicySettings = Field(default_factory=PolicySettings)
     safety: SafetySettings = Field(default_factory=SafetySettings)
-

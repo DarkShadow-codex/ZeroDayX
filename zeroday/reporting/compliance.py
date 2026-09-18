@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.findings.models import Finding
+
+if TYPE_CHECKING:
+    from zeroday.findings.models import Finding
 
 
 @dataclass
@@ -78,7 +80,9 @@ class ComplianceMapper:
 
         # Check for injection vulnerabilities (CWE-89, CWE-78, CWE-79)
         injection_findings = [
-            f.finding_id for f in findings if any(c in f.cwe for c in ("CWE-89", "CWE-78", "CWE-79"))
+            f.finding_id
+            for f in findings
+            if any(c in f.cwe for c in ("CWE-89", "CWE-78", "CWE-79"))
         ]
         if injection_findings:
             mappings["PCI_DSS"].append(

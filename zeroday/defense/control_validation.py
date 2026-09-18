@@ -37,7 +37,13 @@ class SecurityControlValidator:
         """Analyze whether WAF successfully blocked malicious probe."""
         blocked = http_status in (403, 406, 429) or any(
             sig in response_body.lower()
-            for sig in ("cloudflare", "waf", "access denied", "blocked by security policy", "mod_security")
+            for sig in (
+                "cloudflare",
+                "waf",
+                "access denied",
+                "blocked by security policy",
+                "mod_security",
+            )
         )
         status = "EFFECTIVE" if blocked else "GAP"
         evidence = f"HTTP {http_status} returned on attack probe"

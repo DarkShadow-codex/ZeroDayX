@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -35,10 +35,9 @@ class CoverageManager:
 
     def record_discovered(self, category: str, item: str) -> None:
         metric = getattr(self, category, None)
-        if isinstance(metric, CoverageMetric):
-            if item not in metric.items:
-                metric.items.append(item)
-                metric.discovered += 1
+        if isinstance(metric, CoverageMetric) and item not in metric.items:
+            metric.items.append(item)
+            metric.discovered += 1
 
     def record_tested(self, category: str, item: str) -> None:
         metric = getattr(self, category, None)

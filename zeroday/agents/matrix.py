@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from zeroday.policy.permissions import DEFAULT_AGENT_CAPABILITIES, AgentCapabilities
 

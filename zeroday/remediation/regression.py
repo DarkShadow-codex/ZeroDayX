@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
-import uuid
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.findings.models import Finding
+
+if TYPE_CHECKING:
+    from zeroday.findings.models import Finding
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,9 @@ class SecurityRegressionEngine:
         category = finding.cwe[0] if finding.cwe else "general_vulnerability"
 
         # Determine expected status code for secure state
-        expected_status = [401, 403] if "auth" in category.lower() or "639" in category else [400, 422]
+        expected_status = (
+            [401, 403] if "auth" in category.lower() or "639" in category else [400, 422]
+        )
 
         spec = RegressionTestSpec(
             test_id=test_id,

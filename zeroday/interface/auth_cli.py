@@ -39,10 +39,7 @@ LOGIN_PROVIDER = "chatgpt"
 _ACCEPTED_PROVIDERS = frozenset({LOGIN_PROVIDER, codex.PROVIDER})
 
 _USAGE = (
-    "Usage:\n"
-    "  zeroday auth login chatgpt [--manual]\n"
-    "  zeroday auth status\n"
-    "  zeroday auth logout"
+    "Usage:\n  zeroday auth login chatgpt [--manual]\n  zeroday auth status\n  zeroday auth logout"
 )
 
 

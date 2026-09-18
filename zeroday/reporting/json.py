@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.findings.models import Finding
+
+if TYPE_CHECKING:
+    from zeroday.findings.models import Finding
 
 
 class JsonReportGenerator:

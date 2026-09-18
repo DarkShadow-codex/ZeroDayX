@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.intelligence.attack_surface.models import Asset, AssetType
+
+if TYPE_CHECKING:
+    from zeroday.intelligence.attack_surface.models import Asset, AssetType
 
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from typing import Any
 
 
@@ -27,12 +27,11 @@ class PurpleTeamResult:
     def outcome(self) -> str:
         if self.attack_successful and not self.detection_triggered:
             return "ATTACK_SUCCESS_DETECTION_FAILED"
-        elif self.attack_successful and self.detection_triggered:
+        if self.attack_successful and self.detection_triggered:
             return "ATTACK_SUCCESS_DETECTION_SUCCESS"
-        elif not self.attack_successful and self.detection_triggered:
+        if not self.attack_successful and self.detection_triggered:
             return "ATTACK_BLOCKED_DETECTION_SUCCESS"
-        else:
-            return "ATTACK_BLOCKED"
+        return "ATTACK_BLOCKED"
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)

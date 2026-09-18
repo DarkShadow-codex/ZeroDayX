@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.findings.models import Finding
-from zeroday.risk.scoring import SecurityScoreReport, ZeroDaySecurityScore
+
+if TYPE_CHECKING:
+    from zeroday.findings.models import Finding
+    from zeroday.risk.scoring import SecurityScoreReport
 
 
 logger = logging.getLogger(__name__)
@@ -35,14 +37,19 @@ class ExecutiveReportGenerator:
             delta_str = "(unchanged)"
 
         lines = [
-            f"# ZeroDay Executive Security Posture Assessment",
+            "# ZeroDay Executive Security Posture Assessment",
             f"**Project**: {project_name} | **Target**: {target_name}",
             f"**Date**: {timestamp}",
             "",
             "---",
             "",
             "## Executive Summary",
-            f"ZeroDay completed an autonomous security validation of `{target_name}`. The assessment evaluates real-world attack surfaces, validates exploitability with empirical evidence, maps threat paths to critical assets, and measures defensive detection coverage.",
+            (
+                f"ZeroDay completed an autonomous security validation of `{target_name}`. "
+                "The assessment evaluates real-world attack surfaces, validates exploitability "
+                "with empirical evidence, maps threat paths to critical assets, and measures "
+                "defensive detection coverage."
+            ),
             "",
             "### ZeroDay Security Score",
             f"# **{posture_score.current_score} / 100** {delta_str}",
@@ -64,13 +71,18 @@ class ExecutiveReportGenerator:
             lines.append("No Critical or High severity vulnerabilities were identified.")
         else:
             for f in crit_findings:
+                impact = f.impact or "Unauthorized access / security control compromise."
+                rec = (
+                    f.remediation.recommendation
+                    or "Apply strict server-side authorization and parameter validation."
+                )
                 lines.extend(
                     [
                         f"### [{f.severity.value}] {f.title} (`{f.finding_id}`)",
                         f"- **CVSS Score**: {f.cvss} | **Confidence**: {int(f.confidence * 100)}%",
                         f"- **Endpoint**: `{f.method} {f.endpoint}`",
-                        f"- **Impact**: {f.impact or 'Unauthorized access / security control compromise.'}",
-                        f"- **Recommended Fix**: {f.remediation.recommendation or 'Apply strict server-side authorization and parameter validation.'}",
+                        f"- **Impact**: {impact}",
+                        f"- **Recommended Fix**: {rec}",
                         "",
                     ]
                 )
@@ -86,13 +98,15 @@ class ExecutiveReportGenerator:
             for path in top_attack_paths:
                 path_str = " ➔ ".join(path.get("labels", []))
                 lines.append(f"- **Path {path.get('path_id')}**: {path_str}")
-                lines.append(f"  - *Cost*: {path.get('total_cost')} | *Confidence*: {int(path.get('confidence', 1.0) * 100)}%")
+                conf_pct = int(path.get("confidence", 1.0) * 100)
+                lines.append(f"  - *Cost*: {path.get('total_cost')} | *Confidence*: {conf_pct}%")
 
         lines.extend(
             [
                 "",
                 "---",
-                "*Generated automatically by ZeroDay Autonomous AI Red Team & Security Validation Platform.*",
+                "*Generated automatically by ZeroDay Autonomous AI Red Team & "
+                "Security Validation Platform.*",
             ]
         )
 

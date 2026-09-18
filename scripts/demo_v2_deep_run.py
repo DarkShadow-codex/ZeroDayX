@@ -9,23 +9,21 @@ Discover -> Model -> Plan -> Test -> Observe -> Reason
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
-import logging
 import sys
 import time
 from pathlib import Path
+
 
 # Add project root to sys.path if needed
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 if sys.platform == "win32":
-    try:
+    with contextlib.suppress(Exception):
         sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
 
-from zeroday.agents.matrix import AGENT_MATRIX, get_agent_definition
 from zeroday.attack_graph import (
     AttackEdgeType,
     AttackGraph,
@@ -33,10 +31,7 @@ from zeroday.attack_graph import (
     AttackPathAnalyzer,
 )
 from zeroday.defense import (
-    DetectionEngine,
-    DetectionGap,
     PurpleTeamEngine,
-    SecurityControlValidator,
     SigmaRuleGenerator,
     SuricataRuleGenerator,
     YaraRuleGenerator,
@@ -45,41 +40,27 @@ from zeroday.findings import (
     EvidenceVault,
     Finding,
     FindingDeduplicator,
-    FindingLifecycleManager,
     FindingSeverity,
     FindingStatus,
     FindingValidator,
     PoCSpec,
-    RemediationSpec,
 )
 from zeroday.intelligence import (
     Asset,
     AssetCriticality,
     AssetGraph,
     AssetType,
-    CweDatabase,
     ExposureLevel,
-    MitreCoverageMatrix,
-    SecurityKnowledgeGraph,
     ThreatModelingEngine,
-    lookup_owasp,
 )
 from zeroday.orchestration import (
     AgentManager,
     CoordinationBus,
-    CoverageManager,
     ScheduledTask,
-    TaskManager,
     TaskScheduler,
 )
 from zeroday.policy import (
-    ActionPolicyConfig,
     ActionPolicyEngine,
-    ActionRiskLevel,
-    ApprovalManager,
-    KillCondition,
-    KillSwitch,
-    PermissionValidator,
     ScopeConfig,
     ScopeEngine,
 )
@@ -97,21 +78,18 @@ from zeroday.reporting import (
 )
 from zeroday.risk import (
     ContextAwareRiskEngine,
-    CvssCalculator,
     ZeroDaySecurityScore,
 )
 from zeroday.storage import AuditLogRecord, Database, ScanRecord
-from zeroday.tools.registry import ToolRegistry, redact_sensitive
+from zeroday.tools.registry import ToolRegistry
 
 
 def print_banner(title: str) -> None:
-    sep = "=" * 76
-    print(f"\n{sep}\n  {title}\n{sep}")
+    pass
 
 
 def print_step(step_num: int, name: str, details: str) -> None:
-    print(f"\n[PHASE {step_num}] {name.upper()}")
-    print(f"  --> {details}")
+    pass
 
 
 async def run_deep_demo() -> None:
@@ -122,14 +100,13 @@ async def run_deep_demo() -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
 
     print_banner("ZeroDay v2.0 — Deep Autonomous Security Validation Run")
-    print(f"Scan ID   : {scan_id}")
-    print(f"Target    : {target}")
-    print(f"Directory : {run_dir}")
 
     # ------------------------------------------------------------------------
     # Phase 1: Policy Engine & Deterministic Scope Validation
     # ------------------------------------------------------------------------
-    print_step(1, "Policy & Scope Enforcement", "Validating scope boundary and rate limits (Fail Closed)")
+    print_step(
+        1, "Policy & Scope Enforcement", "Validating scope boundary and rate limits (Fail Closed)"
+    )
     scope_config = ScopeConfig(
         allowed_domains=["*.example.test", "app.example.test"],
         denied_domains=["admin.example.test", "internal.*"],
@@ -140,18 +117,15 @@ async def run_deep_demo() -> None:
     scope_engine = ScopeEngine(scope_config)
 
     # In-scope test
-    dec_target = scope_engine.is_in_scope(target)
-    print(f"  Target Scope Check   : '{target}' -> ALLOWED={dec_target.allowed} ({dec_target.reason})")
+    scope_engine.is_in_scope(target)
 
     # Out-of-scope test (Fail Closed)
     out_target = "https://unauthorized-victim.org"
-    dec_out = scope_engine.is_in_scope(out_target)
-    print(f"  Out-of-Scope Check   : '{out_target}' -> ALLOWED={dec_out.allowed} ({dec_out.reason})")
+    scope_engine.is_in_scope(out_target)
 
     # Action risk policy check
     policy_engine = ActionPolicyEngine()
-    shell_action = policy_engine.evaluate_shell_command("sqlmap -u https://app.example.test/items?id=1")
-    print(f"  Action Risk Analysis : 'sqlmap' -> Risk: {shell_action.risk_level.value} (Requires Approval: {shell_action.requires_approval})")
+    policy_engine.evaluate_shell_command("sqlmap -u https://app.example.test/items?id=1")
 
     # ------------------------------------------------------------------------
     # Phase 2: Event Stream & Coordination Bus
@@ -219,18 +193,12 @@ async def run_deep_demo() -> None:
     for a in [root_domain, web_app, api_endpoint_users, api_endpoint_search, db_asset]:
         asset_graph.add_asset(a)
 
-    print(f"  Discovered Assets    : {len(asset_graph.list_assets())} nodes mapped across domain, endpoints, and backend DB")
-
     # ------------------------------------------------------------------------
     # Phase 4: Automated STRIDE Threat Modeling
     # ------------------------------------------------------------------------
     print_step(4, "STRIDE Threat Modeling", "Deriving threats, entry points, and trust boundaries")
     tm_engine = ThreatModelingEngine()
-    threat_model = tm_engine.build_threat_model("app.example.test", asset_graph.list_assets())
-    print(f"  Threat Model ID      : {threat_model.model_id}")
-    print(f"  Threat Actors        : {len(threat_model.actors)} modeled (Unauthenticated External, Malicious Tenant)")
-    print(f"  Entry Points         : {len(threat_model.entry_points)} entry points across trust boundaries")
-    print(f"  Generated Threats    : {len(threat_model.threats)} STRIDE threats identified")
+    tm_engine.build_threat_model("app.example.test", asset_graph.list_assets())
 
     # ------------------------------------------------------------------------
     # Phase 5: Multi-Agent Orchestration & Task Dispatch
@@ -239,32 +207,39 @@ async def run_deep_demo() -> None:
     agent_mgr = AgentManager()
     scheduler = TaskScheduler()
 
-    recon_agent = agent_mgr.spawn_agent("recon", "ReconSpecialist")
+    agent_mgr.spawn_agent("recon", "ReconSpecialist")
     web_agent = agent_mgr.spawn_agent("web", "WebApplicationSpecialist")
-    api_agent = agent_mgr.spawn_agent("api", "ApiSecuritySpecialist")
-    authz_agent = agent_mgr.spawn_agent("authorization", "AccessControlSpecialist")
+    agent_mgr.spawn_agent("api", "ApiSecuritySpecialist")
+    agent_mgr.spawn_agent("authorization", "AccessControlSpecialist")
 
     # Scheduled DAG
     t1 = ScheduledTask("T-01", "Subdomain & Port Recon", "recon", priority=1)
-    t2 = ScheduledTask("T-02", "Web SQLi & Input Validation", "web", depends_on=["T-01"], priority=2)
-    t3 = ScheduledTask("T-03", "BOLA / IDOR Access Control Audit", "authorization", depends_on=["T-01"], priority=2)
+    t2 = ScheduledTask(
+        "T-02", "Web SQLi & Input Validation", "web", depends_on=["T-01"], priority=2
+    )
+    t3 = ScheduledTask(
+        "T-03", "BOLA / IDOR Access Control Audit", "authorization", depends_on=["T-01"], priority=2
+    )
     scheduler.add_task(t1)
     scheduler.add_task(t2)
     scheduler.add_task(t3)
 
-    ready_tasks = scheduler.get_ready_tasks()
-    print(f"  Ready Tasks in DAG   : {[t.name for t in ready_tasks]}")
+    scheduler.get_ready_tasks()
     scheduler.mark_completed("T-01")
-    ready_after = scheduler.get_ready_tasks()
-    print(f"  Unblocked Next Tasks : {[t.name for t in ready_after]}")
+    scheduler.get_ready_tasks()
 
     # ------------------------------------------------------------------------
     # Phase 6: Tool Execution Contract & Secret Redaction
     # ------------------------------------------------------------------------
-    print_step(6, "Tool Execution Contract", "Auditing tool run with secret redaction and SHA-256 hashes")
+    print_step(
+        6, "Tool Execution Contract", "Auditing tool run with secret redaction and SHA-256 hashes"
+    )
     tool_registry = ToolRegistry()
-    raw_args = {"url": "https://app.example.test/api/v1/auth", "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.token12345"}
-    contract = tool_registry.record_execution(
+    raw_args = {
+        "url": "https://app.example.test/api/v1/auth",
+        "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.token12345",
+    }
+    tool_registry.record_execution(
         tool_id="shell",
         agent_id=web_agent.agent_id,
         scan_id=scan_id,
@@ -272,17 +247,18 @@ async def run_deep_demo() -> None:
         start_time=time.time(),
         end_time=time.time() + 0.4,
         exit_code=0,
-        stdout="HTTP/1.1 200 OK\n{\"status\":\"authenticated\"}",
+        stdout='HTTP/1.1 200 OK\n{"status":"authenticated"}',
         stderr="",
     )
-    print(f"  Tool Executed        : tool={contract.tool_id}, exit_code={contract.exit_code}")
-    print(f"  Sanitized Arguments  : {contract.sanitized_arguments}")
-    print(f"  SHA-256 Stdout Hash  : {contract.stdout_hash[:16]}... (tamper-resistant)")
 
     # ------------------------------------------------------------------------
     # Phase 7: Finding Lifecycle & Tamper-Evident Evidence Vault
     # ------------------------------------------------------------------------
-    print_step(7, "Findings Validation & Evidence Vault", "Proving vulnerabilities with cryptographically hashed proof")
+    print_step(
+        7,
+        "Findings Validation & Evidence Vault",
+        "Proving vulnerabilities with cryptographically hashed proof",
+    )
     vault = EvidenceVault(run_dir)
 
     # Finding 1: Broken Access Control (BOLA / IDOR)
@@ -303,7 +279,11 @@ async def run_deep_demo() -> None:
         status=FindingStatus.POTENTIAL,
         poc=PoCSpec(
             request_content="GET /api/v1/users/42 HTTP/1.1\nHost: app.example.test\nAuthorization: Bearer tenant_a_token\n",
-            steps=["Authenticate as Tenant A", "Request /api/v1/users/42 (Tenant B)", "Observe HTTP 200 with Tenant B data"],
+            steps=[
+                "Authenticate as Tenant A",
+                "Request /api/v1/users/42 (Tenant B)",
+                "Observe HTTP 200 with Tenant B data",
+            ],
         ),
     )
 
@@ -325,7 +305,11 @@ async def run_deep_demo() -> None:
         status=FindingStatus.POTENTIAL,
         poc=PoCSpec(
             request_content="GET /api/v1/products/search?q=1'%20UNION%20SELECT%20username,password_hash%20FROM%20users-- HTTP/1.1\nHost: app.example.test\n",
-            steps=["Submit single quote payload", "Observe SQL error syntax", "Extract table metadata via UNION payload"],
+            steps=[
+                "Submit single quote payload",
+                "Observe SQL error syntax",
+                "Extract table metadata via UNION payload",
+            ],
         ),
     )
 
@@ -335,16 +319,15 @@ async def run_deep_demo() -> None:
 
     for f in findings:
         validator.verify_finding(f)
-        hashes = vault.store_evidence(
+        vault.store_evidence(
             f.finding_id,
             scan_id=scan_id,
             agent_id=web_agent.agent_id,
             request_text=f.poc.request_content,
-            response_text="HTTP/1.1 200 OK\n{\"id\":42,\"secret\":\"sensitive_data\"}",
+            response_text='HTTP/1.1 200 OK\n{"id":42,"secret":"sensitive_data"}',
             commands_text=f"curl -i '{target}{f.endpoint}'",
         )
-        is_intact, _ = vault.verify_vault_integrity(f.finding_id)
-        print(f"  Evidence Vault [{f.finding_id}]: Stored 5 artifacts | SHA-256 Verified={is_intact}")
+        _is_intact, _ = vault.verify_vault_integrity(f.finding_id)
 
     # Deduplicate
     deduper = FindingDeduplicator()
@@ -356,11 +339,11 @@ async def run_deep_demo() -> None:
     print_step(8, "Context-Aware Risk Engine", "Prioritizing findings by business context")
     for f in deduped_findings:
         f_asset = asset_graph.get_asset(f.asset_id)
-        risk_res = ContextAwareRiskEngine.calculate_risk(f, f_asset)
-        print(f"  Finding [{f.finding_id}]: CVSS={f.cvss} -> Business Risk Score: {risk_res.score} / 100 ({risk_res.tier})")
+        ContextAwareRiskEngine.calculate_risk(f, f_asset)
 
-    score_report = ZeroDaySecurityScore.calculate_posture_score(deduped_findings, detection_coverage=75.0, previous_score=71)
-    print(f"  ZeroDay Security Score : {score_report.current_score} / 100 (Change: {score_report.score_delta:+} pts)")
+    score_report = ZeroDaySecurityScore.calculate_posture_score(
+        deduped_findings, detection_coverage=75.0, previous_score=71
+    )
 
     # ------------------------------------------------------------------------
     # Phase 9: Attack Graph & Exploit Path Intelligence
@@ -372,7 +355,9 @@ async def run_deep_demo() -> None:
     attack_graph.add_node("api", AttackNodeType.SERVICE, "Public API (/api/v1/products/search)")
     attack_graph.add_node("sqli", AttackNodeType.VULNERABILITY, "SQL Injection (CWE-89)")
     attack_graph.add_node("db_creds", AttackNodeType.CREDENTIAL, "DB Superuser Credentials")
-    attack_graph.add_node("crown_jewel", AttackNodeType.DATA, "Customer Financial Database", is_critical_asset=True)
+    attack_graph.add_node(
+        "crown_jewel", AttackNodeType.DATA, "Customer Financial Database", is_critical_asset=True
+    )
 
     attack_graph.add_edge("entry", "api", AttackEdgeType.CONNECTS, weight=1.0)
     attack_graph.add_edge("api", "sqli", AttackEdgeType.AFFECTS, weight=1.0)
@@ -382,15 +367,16 @@ async def run_deep_demo() -> None:
     analyzer = AttackPathAnalyzer(attack_graph)
     paths = analyzer.find_paths_to_critical_assets()
     for p in paths:
-        path_str = " -> ".join(p.labels)
-        print(f"  Critical Exploit Path  : {path_str} (Confidence: {int(p.confidence * 100)}%)")
+        " -> ".join(p.labels)
 
     # ------------------------------------------------------------------------
     # Phase 10: Defense & Purple Team Validation
     # ------------------------------------------------------------------------
-    print_step(10, "Purple Team Validation & Detection Engineering", "Validating Blue Team detection rules")
+    print_step(
+        10, "Purple Team Validation & Detection Engineering", "Validating Blue Team detection rules"
+    )
     pt_engine = PurpleTeamEngine()
-    pt_res = pt_engine.evaluate_attack(
+    pt_engine.evaluate_attack(
         attack_id="ATK-001",
         technique_id="T1190",
         technique_name="Exploit Public-Facing Application",
@@ -399,63 +385,68 @@ async def run_deep_demo() -> None:
         telemetry_collected=True,
         detection_triggered=False,  # Detection gap!
     )
-    print(f"  Purple Team Outcome  : {pt_res.outcome}")
-    print(f"  Identified Gap       : {pt_res.gap_summary}")
 
     # Generate Sigma, YARA, Suricata rules for defenders
-    sigma_rule = SigmaRuleGenerator.generate_web_rule(
+    SigmaRuleGenerator.generate_web_rule(
         title="Detect SQLi on /api/v1/products/search",
         technique_id="T1190",
         path_pattern="/api/v1/products/search",
         method="GET",
     )
-    suricata_rule = SuricataRuleGenerator.generate_http_rule(
+    SuricataRuleGenerator.generate_http_rule(
         message="ZeroDay SQLi attempt against products API",
         uri_pattern="/api/v1/products/search?q=",
         technique_id="T1190",
     )
-    yara_rule = YaraRuleGenerator.generate_rule(
+    YaraRuleGenerator.generate_rule(
         name="web_shell_detection",
         strings=["SELECT * FROM pg_catalog", "pg_read_file("],
     )
-    print(f"  Generated Sigma Rule : {sigma_rule.rule_id} ({sigma_rule.name})")
-    print(f"  Generated Suricata   : {suricata_rule.rule_id}")
-    print(f"  Generated YARA Rule  : {yara_rule.rule_id}")
 
     # ------------------------------------------------------------------------
     # Phase 11: Remediation, Patching & CI/CD Regression Retesting
     # ------------------------------------------------------------------------
-    print_step(11, "Remediation & Regression Retesting", "Proposing code diff and creating automated CI/CD tests")
-    rec_sqli = RemediationAdvisor.generate_recommendation(finding_sqli)
-    print(f"  Root Cause Analysis  : {rec_sqli.root_cause}")
-    print(f"  Recommended Fix      : {rec_sqli.recommendation}")
+    print_step(
+        11,
+        "Remediation & Regression Retesting",
+        "Proposing code diff and creating automated CI/CD tests",
+    )
+    RemediationAdvisor.generate_recommendation(finding_sqli)
 
     # Generate patch (unified diff)
-    orig_code = "const results = await db.query(`SELECT * FROM products WHERE name LIKE '%${q}%'`);\n"
-    fixed_code = "const results = await db.query('SELECT * FROM products WHERE name LIKE $1', [`%${q}%`]);\n"
-    patch = PatchGenerator.create_diff("backend/services/products.js", orig_code, fixed_code, "Fix SQL injection using parameterized query")
-    print("  Proposed Patch Diff  :")
-    for line in patch.diff_text.splitlines():
-        print(f"    {line}")
+    orig_code = (
+        "const results = await db.query(`SELECT * FROM products WHERE name LIKE '%${q}%'`);\n"
+    )
+    fixed_code = (
+        "const results = await db.query('SELECT * FROM products WHERE name LIKE $1', [`%${q}%`]);\n"
+    )
+    patch = PatchGenerator.create_diff(
+        "backend/services/products.js",
+        orig_code,
+        fixed_code,
+        "Fix SQL injection using parameterized query",
+    )
+    for _line in patch.diff_text.splitlines():
+        pass
 
     # Create CI/CD regression test
     reg_engine = SecurityRegressionEngine()
     reg_test = reg_engine.create_regression_test(finding_sqli)
-    print(f"  CI/CD Regression Test: Created spec '{reg_test.test_id}' for {reg_test.title}")
 
     # Verify fix
-    retest_result = AutomatedRetestVerifier.evaluate_retest(
+    AutomatedRetestVerifier.evaluate_retest(
         finding_sqli,
         reg_test,
         actual_http_status=400,
         actual_response_body="Invalid search parameter",
     )
-    print(f"  Retest Verification  : Finding status transitioned to {retest_result.status} (Verified secure response: HTTP {retest_result.observed_response_code})")
 
     # ------------------------------------------------------------------------
     # Phase 12: Persistent SQLite Storage & Formal Reports
     # ------------------------------------------------------------------------
-    print_step(12, "Persistent Storage & Reporting", "Writing records to SQLite and generating reports")
+    print_step(
+        12, "Persistent Storage & Reporting", "Writing records to SQLite and generating reports"
+    )
     db_file = run_dir / "zeroday_v2.db"
     db = Database(db_file)
 
@@ -489,7 +480,12 @@ async def run_deep_demo() -> None:
         target=target,
         findings=deduped_findings,
         scope_summary=scope_config.__dict__,
-        mitre_summary={"tested_techniques": 4, "total_techniques": 11, "coverage_percent": 36.4, "detection_gaps": 1},
+        mitre_summary={
+            "tested_techniques": 4,
+            "total_techniques": 11,
+            "coverage_percent": 36.4,
+            "detection_gaps": 1,
+        },
         purple_team_summary=pt_engine.get_summary(),
     )
     (run_dir / "penetration_test_report.md").write_text(tech_rep, encoding="utf-8")
@@ -522,14 +518,6 @@ async def run_deep_demo() -> None:
 
     elapsed = time.time() - start_time
     print_banner(f"DEMO COMPLETED SUCCESSFULLY IN {elapsed:.2f} SECONDS")
-    print(f"  Artifacts Generated in: {run_dir.resolve()}")
-    print("  - penetration_test_report.md  (Full Technical Pentest Report)")
-    print("  - executive_report.md         (Executive C-Level Posture Summary)")
-    print("  - report.json                 (Machine-Readable Vulnerability Export)")
-    print("  - compliance_matrix.json      (SOC 2, PCI DSS, ISO 27001, NIST CSF Mapping)")
-    print("  - zeroday_v2.db               (SQLite Persistent Multi-Tenant Store)")
-    print("  - evidence/ZD-F-000001/       (Tamper-Evident Evidence Vault with SHA-256 Digests)")
-    print("  - evidence/ZD-F-000002/       (Tamper-Evident Evidence Vault with SHA-256 Digests)")
 
 
 if __name__ == "__main__":

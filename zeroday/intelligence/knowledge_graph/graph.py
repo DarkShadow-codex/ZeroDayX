@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 @dataclass
 class KnowledgeNode:
     node_id: str
-    entity_type: str  # Asset, Endpoint, Vulnerability, CWE, OWASP, ATT&CK, Finding, Control, Detection, Remediation
+    # Asset, Endpoint, Vulnerability, CWE, OWASP, ATT&CK, Finding, Control, etc.
+    entity_type: str
     label: str
     properties: dict[str, Any] = field(default_factory=dict)
 

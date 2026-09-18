@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
 
 from zeroday.findings.models import Finding, FindingStatus
 
@@ -46,7 +45,11 @@ class FindingLifecycleManager:
         allowed = VALID_TRANSITIONS.get(current, set())
 
         if target_status not in allowed:
-            msg = f"Cannot transition finding '{finding.finding_id}' from {current.value} to {target_status.value}. Allowed: {[s.value for s in allowed]}"
+            allowed_vals = [s.value for s in allowed]
+            msg = (
+                f"Cannot transition finding '{finding.finding_id}' from {current.value} "
+                f"to {target_status.value}. Allowed: {allowed_vals}"
+            )
             logger.error(msg)
             raise InvalidFindingTransitionError(msg)
 

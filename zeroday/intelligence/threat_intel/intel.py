@@ -33,11 +33,10 @@ class ThreatIntelEngine:
     def lookup_cve(self, cve_id: str) -> ThreatIntelAdvisory | None:
         return self._advisories.get(cve_id.upper().strip())
 
-    def match_package(self, package_name: str, version: str) -> list[ThreatIntelAdvisory]:
-        matches = []
+    def match_package(self, package_name: str, _version: str = "") -> list[ThreatIntelAdvisory]:
         pkg_lower = package_name.lower()
-        for adv in self._advisories.values():
-            for aff in adv.affected_packages:
-                if pkg_lower in aff.lower():
-                    matches.append(adv)
-        return matches
+        return [
+            adv
+            for adv in self._advisories.values()
+            if any(pkg_lower in aff.lower() for aff in adv.affected_packages)
+        ]

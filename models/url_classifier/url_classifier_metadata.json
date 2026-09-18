@@ -1,0 +1,21 @@
+{
+  "datasets": [
+    "PhiUSIIL",
+    "Malicious_URLs"
+  ],
+  "held_out_benchmark": "Suspicious_URLs_Lexical",
+  "calibrated_threshold": 0.5,
+  "epochs": 1,
+  "held_out_metrics": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "fpr": 0.0,
+    "tp": 10,
+    "fp": 0,
+    "tn": 10,
+    "fn": 0,
+    "threshold": 0.5
+  },
+  "target_criteria_met": true
+}

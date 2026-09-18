@@ -88,8 +88,10 @@ class AttackGraph:
             clean_label = node.label.replace('"', "'")
             lines.append(f'    {node.node_id}{shape_start}"{clean_label}"{shape_end}')
 
-        for edge in self._edges:
-            lines.append(f"    {edge.source_id} -->|{edge.edge_type.value}| {edge.target_id}")
+        lines.extend(
+            f"    {edge.source_id} -->|{edge.edge_type.value}| {edge.target_id}"
+            for edge in self._edges
+        )
 
         return "\n".join(lines)
 

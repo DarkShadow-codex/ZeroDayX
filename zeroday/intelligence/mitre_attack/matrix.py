@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import enum
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 
@@ -164,7 +164,11 @@ class MitreCoverageMatrix:
                     "status": (
                         "DETECTED"
                         if t.detected
-                        else ("GAP" if t.findings_count > 0 else ("TESTED" if t.tested else "UNTRIAGED"))
+                        else (
+                            "GAP"
+                            if t.findings_count > 0
+                            else ("TESTED" if t.tested else "UNTRIAGED")
+                        )
                     ),
                 }
                 for t in self.techniques.values()

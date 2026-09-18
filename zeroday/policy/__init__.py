@@ -36,6 +36,8 @@ from zeroday.policy.scope import (
 
 
 __all__ = [
+    "DEFAULT_AGENT_CAPABILITIES",
+    "GLOBAL_KILL_SWITCH",
     "ActionPolicyConfig",
     "ActionPolicyDecision",
     "ActionPolicyEngine",
@@ -44,8 +46,6 @@ __all__ = [
     "ApprovalManager",
     "ApprovalRequest",
     "ApprovalStatus",
-    "DEFAULT_AGENT_CAPABILITIES",
-    "GLOBAL_KILL_SWITCH",
     "KillCondition",
     "KillSwitch",
     "KillSwitchEvent",

@@ -5,10 +5,13 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from zeroday.storage.models import AuditLogRecord, ScanRecord
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from zeroday.storage.models import AuditLogRecord, ScanRecord
 
 
 logger = logging.getLogger(__name__)
@@ -111,8 +114,11 @@ class Database:
         with self._get_connection() as conn:
             conn.execute(
                 """
-                INSERT OR REPLACE INTO scans 
-                (scan_id, project_id, target, status, scan_mode, safety_mode, created_at, completed_at, summary)
+                INSERT OR REPLACE INTO scans
+                (
+                    scan_id, project_id, target, status, scan_mode,
+                    safety_mode, created_at, completed_at, summary
+                )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
@@ -133,8 +139,11 @@ class Database:
         with self._get_connection() as conn:
             conn.execute(
                 """
-                INSERT INTO audit_logs 
-                (log_id, project_id, scan_id, agent_id, action, target, outcome, details, timestamp)
+                INSERT OR REPLACE INTO audit_logs
+                (
+                    log_id, project_id, scan_id, agent_id, action,
+                    target, outcome, details, timestamp
+                )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (

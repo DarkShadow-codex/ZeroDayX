@@ -8,7 +8,6 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
 import time
 from pathlib import Path
 from typing import Any
@@ -120,7 +119,7 @@ class EvidenceVault:
 
         try:
             expected_hashes: dict[str, str] = json.loads(hashes_path.read_text(encoding="utf-8"))
-        except Exception as e:
+        except (OSError, json.JSONDecodeError) as e:
             return False, [f"Failed to read hashes.json: {e}"]
 
         mismatches: list[str] = []
@@ -132,6 +131,8 @@ class EvidenceVault:
             data = f_path.read_bytes()
             actual_hash = hashlib.sha256(data).hexdigest()
             if actual_hash != expected_hash:
-                mismatches.append(f"Hash mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}")
+                mismatches.append(
+                    f"Hash mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}"
+                )
 
         return len(mismatches) == 0, mismatches
